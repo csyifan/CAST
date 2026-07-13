@@ -130,7 +130,7 @@ def insert_separator(X, sep_list):
 
 
 def generate_bbox_mask(mask_crop, n_rows, n_cols, block_dims=(12, 12)):
-    """Generate 1D mask sequence for ARCD attention."""
+    """Generate 1D mask sequence for CAST attention."""
     if mask_crop.dim() != 3:
         raise ValueError(f"Expected [B, H, W], got {mask_crop.dim()} dims")
 
@@ -417,7 +417,7 @@ def parse_args():
     parser.add_argument('--attn_weight', type=float, default=3.0)
     parser.add_argument('--perturb_weight', type=float, default=0.01)
 
-    # Auto-ARCD settings
+    # CAST settings
     parser.add_argument('--K', type=int, default=16)
 
     # Misc

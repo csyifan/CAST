@@ -1,5 +1,5 @@
 """
-ProposalGenerator: Generate ROI mask proposals for Auto-ARCD.
+ProposalGenerator: Generate ROI mask proposals for CAST.
 
 This module provides different methods for generating mask proposals:
 - MedSAM3ProposalGenerator: Uses MedSAM3 for medical image segmentation

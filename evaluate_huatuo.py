@@ -352,10 +352,10 @@ class HuatuoCounterfactualSelector:
         return [proposals[i] for i in indices]
 
 
-# ============== ARCD Evaluation ==============
+# ============== CAST Evaluation ==============
 
 @torch.no_grad()
-def evaluate_arcd(model, tokenizer, image_processor, eval_dataset, mask_provider,
+def evaluate_cast(model, tokenizer, image_processor, eval_dataset, mask_provider,
                   config, device, disable_tqdm=False):
     """CAST evaluation via spatial CFG."""
     patch_grid = config['patch_grid']
@@ -615,7 +615,7 @@ def main():
     )
 
     # Evaluate
-    save_info_list, open_scores, closed_scores = evaluate_arcd(
+    save_info_list, open_scores, closed_scores = evaluate_cast(
         model, tokenizer, image_processor, eval_dataset, mask_provider,
         config, device, disable_tqdm=args.no_tqdm
     )

@@ -1,15 +1,13 @@
 """
-Caching utilities for Auto-ARCD.
+Caching utilities for CAST.
 
 Caches proposal masks to avoid recomputation during experiments.
 """
 
 import os
 import json
-import hashlib
 from typing import List, Optional, Dict, Any
 import numpy as np
-from PIL import Image
 
 
 class ProposalCache:
@@ -161,126 +159,3 @@ class ProposalCache:
             image_id = basename[len(self.prefix) + 1:-4]
             ids.append(image_id)
         return ids
-
-
-class SelectionCache:
-    """
-    Cache for ROI selection results.
-
-    Stores selected masks and scores indexed by (image_id, question_hash).
-    """
-
-    def __init__(
-        self,
-        cache_dir: str,
-        prefix: str = "selection"
-    ):
-        """
-        Args:
-            cache_dir: Directory to store cached selections
-            prefix: Prefix for cache files
-        """
-        self.cache_dir = cache_dir
-        self.prefix = prefix
-        os.makedirs(cache_dir, exist_ok=True)
-
-        # In-memory index for faster lookups
-        self._index_path = os.path.join(cache_dir, f"{prefix}_index.json")
-        self._index = self._load_index()
-
-    def _load_index(self) -> Dict[str, Dict[str, str]]:
-        """Load cache index from disk."""
-        if os.path.exists(self._index_path):
-            with open(self._index_path, 'r') as f:
-                return json.load(f)
-        return {}
-
-    def _save_index(self):
-        """Save cache index to disk."""
-        with open(self._index_path, 'w') as f:
-            json.dump(self._index, f)
-
-    def _get_question_hash(self, question: str) -> str:
-        """Get hash of question for indexing."""
-        return hashlib.md5(question.encode()).hexdigest()[:12]
-
-    def _get_cache_path(self, image_id: str, question_hash: str) -> str:
-        """Get cache file path."""
-        safe_id = str(image_id).replace("/", "_").replace("\\", "_")
-        return os.path.join(
-            self.cache_dir,
-            f"{self.prefix}_{safe_id}_{question_hash}.npz"
-        )
-
-    def save(
-        self,
-        image_id: str,
-        question: str,
-        selected_mask: np.ndarray,
-        score: float,
-        all_scores: Optional[List[float]] = None
-    ):
-        """
-        Save selection result to cache.
-
-        Args:
-            image_id: Image identifier
-            question: Question string
-            selected_mask: Selected mask
-            score: Score of selected mask
-            all_scores: Optional list of all proposal scores
-        """
-        question_hash = self._get_question_hash(question)
-        cache_path = self._get_cache_path(image_id, question_hash)
-
-        save_dict = {
-            'mask': selected_mask,
-            'score': np.array([score])
-        }
-        if all_scores is not None:
-            save_dict['all_scores'] = np.array(all_scores)
-
-        np.savez_compressed(cache_path, **save_dict)
-
-        # Update index
-        if image_id not in self._index:
-            self._index[image_id] = {}
-        self._index[image_id][question_hash] = {
-            'path': cache_path,
-            'score': float(score)
-        }
-        self._save_index()
-
-    def load(
-        self,
-        image_id: str,
-        question: str
-    ) -> Optional[tuple]:
-        """
-        Load selection result from cache.
-
-        Returns:
-            Tuple of (mask, score) or None if not cached
-        """
-        question_hash = self._get_question_hash(question)
-        cache_path = self._get_cache_path(image_id, question_hash)
-
-        if not os.path.exists(cache_path):
-            return None
-
-        try:
-            data = np.load(cache_path)
-            mask = data['mask']
-            score = float(data['score'][0])
-            return mask, score
-        except Exception as e:
-            print(f"Warning: Failed to load selection cache: {e}")
-            return None
-
-    def exists(self, image_id: str, question: str) -> bool:
-        """Check if selection is cached."""
-        question_hash = self._get_question_hash(question)
-        return (
-            image_id in self._index and
-            question_hash in self._index[image_id]
-        )

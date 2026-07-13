@@ -1,5 +1,5 @@
 """
-MaskProvider: Abstract interface for providing ROI masks for ARCD decoding.
+MaskProvider: Abstract interface for providing ROI masks for CAST decoding.
 
 This module defines the MaskProvider interface and several implementations:
 - GTMaskProvider: Uses ground-truth masks (for upper bound experiments)
@@ -71,7 +71,7 @@ class GTMaskProvider(MaskProvider):
     Ground truth mask provider.
 
     Uses pre-existing GT masks from the dataset.
-    This serves as the performance upper bound for Auto-ARCD.
+    This serves as the performance upper bound for CAST.
     """
 
     def __init__(self, mask_root: Optional[str] = None):
@@ -142,7 +142,7 @@ class NullMaskProvider(MaskProvider):
     Null mask provider - returns empty masks.
 
     This serves as the baseline (no ROI guidance).
-    The attention mask will be all zeros, effectively disabling ARCD guidance.
+    The attention mask will be all zeros, effectively disabling CAST guidance.
     """
 
     def get_mask(
