@@ -1,12 +1,16 @@
-# CAST: Contrastive Anatomical Spatial-Temporal Decoding
+# [MICCAI 2026] Counterfactual Anatomy-guided Spatial-Temporal Decoding for Annotation-Free Hallucination Mitigation in Medical VLMs
 
-**Annotation-Free Anatomical Region-Guided Contrastive Decoding for Medical Vision-Language Models**
+## Abstract
 
-CAST is a training-free, annotation-free decoding framework that improves Medical VLM accuracy by automatically discovering question-relevant anatomical regions and using them for spatially-guided contrastive decoding.
+Medical vision-language models (Med-VLMs) have demonstrated strong performance on medical visual question answering, yet they remain prone to hallucination, generating clinically unsupported statements that are insufficiently grounded in image evidence. Mitigation methods applied during decoding offer a practical solution, but they typically lack anatomical awareness or rely heavily on ground truth annotations, which limits their applicability. We propose Counterfactual Anatomy-guided Spatial-Temporal decoding (CAST), a framework that operates entirely during inference and requires no manual annotations for anatomically grounded hallucination mitigation. CAST automatically discovers anatomical regions relevant to the given query through broad medical segmentation. It then selects a compact, causally informative area using counterfactual intervention based on the drop in answer likelihood under occlusion. Guided by this chosen region, CAST performs a unified contrastive decoding process, combining classifier-free guidance to correct spatial attention with stepwise temporal contrast to regulate generation dynamics. Experiments on the SLAKE and MIMIC-CXR datasets across three Med-VLMs demonstrate that CAST consistently outperforms strong baselines and surpasses decoding strategies reliant on ground truth. Our results indicate that compact, automatically selected regions provide highly effective contrastive guidance without expert annotations, offering a practical and generalizable solution for improving spatial grounding and reducing hallucinations.
+
+<p align="center">
+  <img src="assets/framework.png" width="90%">
+</p>
 
 ## Method Overview
 
-CAST operates in three stages:
+CAST is a training-free, annotation-free decoding framework that improves Medical VLM accuracy by automatically discovering question-relevant anatomical regions and using them for spatially-guided contrastive decoding. It operates in three stages:
 
 1. **Anatomical Proposal Generation** — MedSAM3 generates region proposals from medical images using 46 anatomical concept prompts in a single forward pass.
 2. **Counterfactual ROI Selection** — For each question, the most relevant region is selected by measuring the likelihood drop when each candidate region is occluded (dual occlusion: Gaussian blur + mean fill).
@@ -109,17 +113,6 @@ CAST/
 ├── evaluate_huatuo.py            # HuatuoGPT-Vision evaluation
 ├── requirements.txt
 └── README.md
-```
-
-## Citation
-
-```bibtex
-@inproceedings{cast2026miccai,
-    title={CAST: Contrastive Anatomical Spatial-Temporal Decoding for Medical Vision-Language Models},
-    author={TODO},
-    booktitle={Medical Image Computing and Computer Assisted Intervention (MICCAI)},
-    year={2026}
-}
 ```
 
 ## License
